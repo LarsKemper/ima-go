@@ -2,9 +2,14 @@ package main
 
 import (
 	"github.com/LarsKemper/ima-go/internal/app"
+	"log"
 	"os"
 )
 
 func main() {
-	app.Run(os.Args[1:])
+	var err = app.Run(os.Args[1:])
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }

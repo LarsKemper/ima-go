@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
@@ -76,22 +75,24 @@ func parseFile(path string) (File, error) {
 	return File{filename, extension, mime, content}, nil
 }
 
-func Run(args []string) {
+func Run(args []string) error {
 	if len(args) <= 0 {
-		log.Fatal("path has to be defined")
+		return errors.New("not arguments given")
 	}
 
 	var path = args[0]
 
 	if path == "" {
-		return
+		return errors.New("path has to be defined")
 	}
 
 	var file, err = parseFile(path)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	fmt.Println(file)
+
+	return nil
 }
