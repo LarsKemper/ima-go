@@ -3,35 +3,30 @@ package app
 import (
 	"errors"
 	"fmt"
+	"image/png"
+	"io"
 	"os"
 	"strings"
 )
 
 const (
-	ExtPng  string = "png"
-	ExtJpg  string = "jpg"
-	ExtJpeg string = "jpeg"
-	MimePng string = "image/png"
-	MimeJpg string = "image/jpeg"
+	PngExt  string = "png"
+	PngMime string = "image/png"
 )
 
 type File struct {
 	name      string
 	extension string
 	mime      string
-	content   []byte
+	content   io.Reader
 }
 
-func matchMime(extension string) (string, error) {
+func matchFileType(extension string) (string, error) {
 	switch extension {
-	case ExtPng:
-		return MimePng, nil
-	case ExtJpg:
-		return MimeJpg, nil
-	case ExtJpeg:
-		return MimeJpg, nil
+	case PngExt:
+		return PngMime, nil
 	default:
-		return "", errors.New("file extension not supported")
+		return "", errors.New("file extension not supported. Use .png")
 	}
 }
 
@@ -60,19 +55,31 @@ func parseFile(path string) (File, error) {
 		return File{}, errors.New("invalid extension")
 	}
 
-	var mime, errM = matchMime(extension)
+	var mime, errM = matchFileType(extension)
 
 	if errM != nil {
 		return File{}, errM
 	}
 
-	var content, errC = os.ReadFile(path)
+	file, err := os.Open(path)
 
-	if errC != nil {
-		return File{}, errors.New("failed to read file content")
+	if err != nil {
+		return File{}, errors.New("failed to open file")
 	}
 
-	return File{filename, extension, mime, content}, nil
+	return File{name: filename, extension: extension, mime: mime, content: file}, nil
+}
+
+func readImagePix(file File) error {
+	var image, err = png.Decode(file.content)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(image.At(0, 0))
+
+	return nil
 }
 
 func Run(args []string) error {
@@ -86,13 +93,17 @@ func Run(args []string) error {
 		return errors.New("path has to be defined")
 	}
 
-	var file, err = parseFile(path)
+	var file, errF = parseFile(path)
 
-	if err != nil {
-		return err
+	if errF != nil {
+		return errF
 	}
 
-	fmt.Println(file)
+	var errR = readImagePix(file)
+
+	if errR != nil {
+		return errR
+	}
 
 	return nil
 }
