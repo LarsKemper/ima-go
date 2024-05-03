@@ -3,6 +3,8 @@ package app
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
 	"image/png"
 	"io"
 	"os"
@@ -10,6 +12,7 @@ import (
 )
 
 const (
+	Charset string = "@#S%?*+;:,."
 	PngExt  string = "png"
 	PngMime string = "image/png"
 )
@@ -70,16 +73,30 @@ func parseFile(path string) (File, error) {
 	return File{name: filename, extension: extension, mime: mime, content: file}, nil
 }
 
-func readImagePix(file File) error {
-	var image, err = png.Decode(file.content)
+func getRelativeRgbBrightness(color color.Color) int {
+	var r, g, b, a = color.RGBA()
 
-	if err != nil {
-		return err
-	}
+	var r8 = uint8(r >> 8)
+	var g8 = uint8(g >> 8)
+	var b8 = uint8(b >> 8)
+	var a8 = uint8(a >> 8)
 
-	fmt.Println(image.At(0, 0))
+	var averageBrightness = (uint32(r8) + uint32(g8) + uint32(b8) + uint32(a8)) / 4
 
-	return nil
+	return int((averageBrightness * 100) / 0xFF)
+}
+
+func getCharByBrightness(brightness int) rune {
+	var charIndex = (brightness * (len(Charset) - 1)) / 100
+
+	return rune(Charset[charIndex])
+}
+
+func getPixelCharByCoords(x int, y int, image image.Image) string {
+	var colorValues = image.At(x, y)
+	var brightness = getRelativeRgbBrightness(colorValues)
+
+	return string(getCharByBrightness(brightness))
 }
 
 func Run(args []string) error {
@@ -99,10 +116,26 @@ func Run(args []string) error {
 		return errF
 	}
 
-	var errR = readImagePix(file)
+	var imageData, err = png.Decode(file.content)
 
-	if errR != nil {
-		return errR
+	if err != nil {
+		return err
+	}
+
+	var scaleFactor = 10.0
+
+	var xMax = imageData.Bounds().Max.X
+	var yMax = imageData.Bounds().Max.Y
+
+	for y := 0; y < yMax; y += 2 {
+		for x := 0; x < int(float64(xMax)*scaleFactor); x += 10 {
+			var originalX = int(float64(x) / scaleFactor)
+			var char = getPixelCharByCoords(originalX, y, imageData)
+
+			fmt.Print(char)
+		}
+
+		fmt.Println()
 	}
 
 	return nil
