@@ -20,6 +20,9 @@ var runCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+
 	runCmd.PersistentFlags().StringP("path", "p", "", "Path to the file to convert to ASCII art")
 	helper.HandleError(runCmd.MarkPersistentFlagRequired("path"))
+
+	// precision, charset, invert, scale
 }

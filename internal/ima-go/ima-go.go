@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -12,9 +13,14 @@ import (
 )
 
 const (
-	Charset string = "@#S%?*+;:,."
-	PngExt  string = "png"
-	PngMime string = "image/png"
+	ScaleFactor float64 = 12.0
+	Precision   int     = 10
+	Charset     string  = "@#S%?*+;:,."
+	PngExt      string  = "png"
+	PngMime     string  = "image/png"
+	JpgExt      string  = "jpg"
+	JpegExt     string  = "jpeg"
+	JpegMime    string  = "image/jpeg"
 )
 
 type File struct {
@@ -28,8 +34,23 @@ func matchFileType(extension string) (string, error) {
 	switch extension {
 	case PngExt:
 		return PngMime, nil
+	case JpgExt:
+		return JpegMime, nil
+	case JpegExt:
+		return JpegMime, nil
 	default:
-		return "", errors.New("file extension not supported. Use .png")
+		return "", errors.New("file extension not supported. Use .png, .jpg or .jpeg")
+	}
+}
+
+func decodeByType(file File) (image.Image, error) {
+	switch file.mime {
+	case PngMime:
+		return png.Decode(file.content)
+	case JpegMime:
+		return jpeg.Decode(file.content)
+	default:
+		return nil, errors.New("failed to decode file type. Use .png or .jpg")
 	}
 }
 
@@ -110,20 +131,18 @@ func Run(path string) error {
 		return errF
 	}
 
-	var imageData, err = png.Decode(file.content)
+	var imageData, err = decodeByType(file)
 
 	if err != nil {
 		return err
 	}
 
-	var scaleFactor = 10.0
-
 	var xMax = imageData.Bounds().Max.X
 	var yMax = imageData.Bounds().Max.Y
 
 	for y := 0; y < yMax; y += 2 {
-		for x := 0; x < int(float64(xMax)*scaleFactor); x += 10 {
-			var originalX = int(float64(x) / scaleFactor)
+		for x := 0; x < int(float64(xMax)*ScaleFactor); x += Precision {
+			var originalX = int(float64(x) / ScaleFactor)
 			var char = getPixelCharByCoords(originalX, y, imageData)
 
 			fmt.Print(char)
