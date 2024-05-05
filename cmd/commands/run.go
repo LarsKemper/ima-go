@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/LarsKemper/ima-go/internal/helper"
-	imaGo "github.com/LarsKemper/ima-go/internal/ima-go"
+	imago "github.com/LarsKemper/ima-go/internal/ima-go"
 	"github.com/spf13/cobra"
 )
 
@@ -14,15 +14,14 @@ var runCmd = &cobra.Command{
 		path, err := cmd.Flags().GetString("path")
 		helper.HandleError(err)
 
-		helper.HandleError(imaGo.Run(path))
+		helper.HandleError(imago.Run(path))
 	},
 }
 
 func init() {
+	// TODO: add options: precision, charset, invert, scale
 	rootCmd.AddCommand(runCmd)
 
 	runCmd.PersistentFlags().StringP("path", "p", "", "Path to the file to convert to ASCII art")
 	helper.HandleError(runCmd.MarkPersistentFlagRequired("path"))
-
-	// precision, charset, invert, scale
 }
