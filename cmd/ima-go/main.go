@@ -1,15 +1,7 @@
 package main
 
-import (
-	"github.com/LarsKemper/ima-go/internal/app"
-	"log"
-	"os"
-)
+import "github.com/LarsKemper/ima-go/cmd/commands"
 
 func main() {
-	var err = app.Run(os.Args[1:])
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	commands.Execute()
 }

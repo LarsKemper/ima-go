@@ -1,4 +1,4 @@
-package app
+package imaGo
 
 import (
 	"errors"
@@ -99,13 +99,7 @@ func getPixelCharByCoords(x int, y int, image image.Image) string {
 	return string(getCharByBrightness(brightness))
 }
 
-func Run(args []string) error {
-	if len(args) <= 0 {
-		return errors.New("not arguments given")
-	}
-
-	var path = args[0]
-
+func Run(path string) error {
 	if path == "" {
 		return errors.New("path has to be defined")
 	}
