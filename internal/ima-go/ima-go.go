@@ -13,14 +13,11 @@ import (
 )
 
 const (
-	ScaleFactor float64 = 12.0
-	Precision   int     = 10
-	Charset     string  = "@#S%?*+;:,."
-	PngExt      string  = "png"
-	PngMime     string  = "image/png"
-	JpgExt      string  = "jpg"
-	JpegExt     string  = "jpeg"
-	JpegMime    string  = "image/jpeg"
+	PngExt   string = "png"
+	PngMime  string = "image/png"
+	JpgExt   string = "jpg"
+	JpegExt  string = "jpeg"
+	JpegMime string = "image/jpeg"
 )
 
 type File struct {
@@ -106,25 +103,25 @@ func getRelativeRgbBrightness(colorValues color.Color) int {
 	return int((averageBrightness * 100) / 0xFF)
 }
 
-func getCharByBrightness(brightness int) rune {
-	charIndex := (brightness * (len(Charset) - 1)) / 100
+func getCharByBrightness(brightness int, options Options) rune {
+	charIndex := (brightness * (len(options.Charset) - 1)) / 100
 
-	return rune(Charset[charIndex])
+	return rune(options.Charset[charIndex])
 }
 
-func getPixelCharByCoords(x, y int, imageData image.Image) string {
+func getPixelCharByCoords(x, y int, imageData image.Image, options Options) string {
 	colorValues := imageData.At(x, y)
 	brightness := getRelativeRgbBrightness(colorValues)
 
-	return string(getCharByBrightness(brightness))
+	return string(getCharByBrightness(brightness, options))
 }
 
-func Run(path string) error {
-	if path == "" {
+func Run(options Options) error {
+	if options.Path == "" {
 		return errors.New("path has to be defined")
 	}
 
-	file, errF := parseFile(path)
+	file, errF := parseFile(options.Path)
 
 	if errF != nil {
 		return errF
@@ -138,12 +135,12 @@ func Run(path string) error {
 	xMax := imageData.Bounds().Max.X
 	yMax := imageData.Bounds().Max.Y
 
-	for y := 0; y < int(float64(yMax)*ScaleFactor); y += Precision {
-		for x := 0; x < int(float64(xMax)*ScaleFactor); x += Precision {
-			originalX := int(float64(x) / ScaleFactor)
-			originalY := int(float64(y) / ScaleFactor)
+	for y := 0; y < int(float64(yMax)*options.YScale); y += options.Precision {
+		for x := 0; x < int(float64(xMax)*options.XScale); x += options.Precision {
+			originalX := int(float64(x) / options.XScale)
+			originalY := int(float64(y) / options.YScale)
 
-			char := getPixelCharByCoords(originalX, originalY, imageData)
+			char := getPixelCharByCoords(originalX, originalY, imageData, options)
 
 			fmt.Print(char)
 		}
