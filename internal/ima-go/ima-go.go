@@ -90,7 +90,7 @@ func parseFile(path string) (File, error) {
 	return File{name: filename, extension: extension, mime: mime, content: file}, nil
 }
 
-func getRelativeRgbBrightness(colorValues color.Color) int {
+func getRelativeRgbBrightness(colorValues color.Color, options Options) int {
 	r, g, b, a := colorValues.RGBA()
 
 	r8 := uint8(r >> 8)
@@ -99,8 +99,13 @@ func getRelativeRgbBrightness(colorValues color.Color) int {
 	a8 := uint8(a >> 8)
 
 	averageBrightness := (uint32(r8) + uint32(g8) + uint32(b8) + uint32(a8)) / 4
+	relativeBrightness := int((averageBrightness * 100) / 0xFF)
 
-	return int((averageBrightness * 100) / 0xFF)
+	if options.Invert {
+		return 100 - relativeBrightness
+	}
+
+	return relativeBrightness
 }
 
 func getCharByBrightness(brightness int, options Options) rune {
@@ -111,7 +116,7 @@ func getCharByBrightness(brightness int, options Options) rune {
 
 func getPixelCharByCoords(x, y int, imageData image.Image, options Options) string {
 	colorValues := imageData.At(x, y)
-	brightness := getRelativeRgbBrightness(colorValues)
+	brightness := getRelativeRgbBrightness(colorValues, options)
 
 	return string(getCharByBrightness(brightness, options))
 }
