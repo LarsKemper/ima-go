@@ -138,10 +138,12 @@ func Run(path string) error {
 	xMax := imageData.Bounds().Max.X
 	yMax := imageData.Bounds().Max.Y
 
-	for y := 0; y < yMax; y += 2 {
+	for y := 0; y < int(float64(yMax)*ScaleFactor); y += Precision {
 		for x := 0; x < int(float64(xMax)*ScaleFactor); x += Precision {
 			originalX := int(float64(x) / ScaleFactor)
-			char := getPixelCharByCoords(originalX, y, imageData)
+			originalY := int(float64(y) / ScaleFactor)
+
+			char := getPixelCharByCoords(originalX, originalY, imageData)
 
 			fmt.Print(char)
 		}
