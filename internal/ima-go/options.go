@@ -2,6 +2,7 @@ package imago
 
 import (
 	"errors"
+
 	"github.com/LarsKemper/ima-go/internal/helper"
 	"github.com/spf13/cobra"
 )

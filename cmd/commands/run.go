@@ -21,8 +21,6 @@ var runCmd = &cobra.Command{
 }
 
 func init() {
-	// TODO: implement invert, color
-
 	rootCmd.AddCommand(runCmd)
 
 	// required flags
@@ -32,7 +30,7 @@ func init() {
 	// optional flags
 	runCmd.PersistentFlags().BoolP("color", "c", false, "Use color in the output")
 	runCmd.PersistentFlags().IntP("precision", "r", 10, "Precision of the ASCII art")
-	runCmd.PersistentFlags().StringP("charset", "s", "@%#*+=-:.", "Characters to use for the ASCII art, from light to dark")
+	runCmd.PersistentFlags().StringP("charset", "s", ".:-=+*#%@", "Characters to use for the ASCII art, from light to dark")
 	runCmd.PersistentFlags().BoolP("invert", "i", false, "Invert the grayscale")
 	runCmd.PersistentFlags().Float64P("xScale", "x", 12.0, "X scale the output")
 	runCmd.PersistentFlags().Float64P("yScale", "y", 5.0, "Y scale the output")
