@@ -10,6 +10,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"github.com/aybabtme/rgbterm"
 )
 
 const (
@@ -118,7 +120,14 @@ func getPixelCharByCoords(x, y int, imageData image.Image, options Options) stri
 	colorValues := imageData.At(x, y)
 	brightness := getRelativeRgbBrightness(colorValues, options)
 
-	return string(getCharByBrightness(brightness, options))
+	char := string(getCharByBrightness(brightness, options))
+
+	if options.Color {
+		r, g, b, _ := colorValues.RGBA()
+		char = rgbterm.FgString(char, uint8(r), uint8(g), uint8(b))
+	}
+
+	return char
 }
 
 func Run(options Options) error {

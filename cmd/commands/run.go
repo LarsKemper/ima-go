@@ -21,8 +21,6 @@ var runCmd = &cobra.Command{
 }
 
 func init() {
-	// TODO: implement invert, color
-
 	rootCmd.AddCommand(runCmd)
 
 	// required flags
